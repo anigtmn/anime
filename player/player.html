@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        :root { --gap: .333vw; }
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2vw;
+            overflow: hidden;
+        }
+        select, button, #player, #embed, #control { width: 100vw; }
+        select, button {
+            text-align: center;
+            border: none;
+            background-color: white;
+            color: black;
+            height: 8vw;
+        }
+        select {
+            display: none;
+            border-radius: 1vw;
+            font-size: 4vw;
+        }
+        #player {
+            display: none;
+            flex-direction: column;
+            border-radius: 1vw;
+            overflow: hidden;
+        }
+        #embed {
+            height: 56.25vw;
+            background-color: black;
+            border: none;
+        }
+        #control {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        button {
+            font-size: 3.5vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #player, #control { gap: var(--gap); }
+        #control0, #control1, #control2 { width: calc((100vw - 2 * var(--gap)) / 3); }
+        #control3, #control4, #control5, #control6 { width: calc((100vw - var(--gap)) / 2); }
+    </style>
+</head>
+<body>
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css">
+<select id="season" onchange="updateSeason()"></select>
+<select id="episode" onchange="updateEpisode()"></select>
+<div id="player">
+	<iframe id="embed" allowfullscreen></iframe>
+    <div id="control">
+        <button id="control0"><span><i></i> Auto Play</span></button>
+        <button id="control1"><span><i></i> Auto Next</span></button>
+        <button id="control2"><span><i></i> Skip Intro</span></button>
+        <button id="control3"><span><i></i> Auto Subtitle Translate</span></button>
+        <button id="control4"><span><i></i> Subtitle Sound Effect</span></button>
+        <button id="control5" onclick="prevEpisode()"><span><i class="fas fa-backward"></i> Previous Episode</span></button>
+        <button id="control6" onclick="nextEpisode()"><span>Next  Episode <i class="fas fa-forward"></i></span></button>
+    </div>
+</div>
+<script>
+let controls = JSON.parse(window.localStorage.getItem("controls") || "[true,true,true,true,true]"),
+    urlParams = new URLSearchParams(window.location.search),
+    season = document.getElementById("season"), episode = document.getElementById("episode"),
+    player = document.getElementById("player"), embed = document.getElementById("embed"),
+    title, seasons = [], episodes, buttons = [];
+for (let i = 0; i < 5; i++) {
+    buttons[i] = document.getElementById("control" + i);
+    updateControls(i, controls[i]);
+    buttons[i].onclick = e => updateControls(i, !controls[i]);
+}
+fetch(`https://anigtmn.github.io/anime/json/${urlParams.get("id")}.json`).then(e => e.json()).then(e => {
+    e.eps = Object.entries(e.eps).map(e => { return { ep: e[0], f: e[1].f, t: e[1].t, i: e[1].i }; });
+    let ep = urlParams.get("ep"), n = 100;
+    ep = e.eps.findIndex(e => e.ep == ep);
+    for (let i = 0; i < e.eps.length; i += n)
+        seasons.push(e.eps.slice(i, i + n));
+    season.innerHTML = '<option value="-1">👉 Choose Episodes 👈</option>' + seasons.map((e, i) => `<option value="${i}">Episodes ${e[0].ep}-${e.slice(-1)[0].ep}</option>`).join("");
+    title = e.nm;
+    if (ep >= 0) {
+        season.value = Math.floor(ep / n);
+        ep %= n;
+    } else if (seasons.length == 1) season.value = 0;
+    season.style.display = seasons.length <= 1 ? "none" : "block";
+    updateSeason(ep);
+});
+function updateSeason(ep = -1) {
+    episode.style.display = season.value == -1 ? "none" : "block";
+    episodes = seasons[season.value];
+    if (season.value >= 0)
+        episode.innerHTML = '<option value="-1">👉 Choose Episode 👈</option>' + episodes.map((e, i) => `<option value="${i}">Episode ${(e.t.length == 0 ? "-" : "") + e.ep}</option>`).join("");
+    if (ep >= 0) episode.value = ep;
+    updateEpisode();
+}
+function updateEpisode() {
+    player.style.display = "none";
+    embed.src = "";
+    if (season.value >= 0 && episode.value >= 0) {
+        player.style.display = "flex";
+        let e = episodes[episode.value], t = "";
+        if (e.t.length > 0) {
+            let idx = e.t.findIndex(e => e[1].toLowerCase() == "english");
+            if (idx < 0) idx = e.t.findIndex(e => e[1].toLowerCase().includes("english"));
+            if (idx < 0) idx = e.t.length - 1;
+            t = e.t[idx][0];
+        }
+        embed.src = `jwplayer.html?f=${e.f}&t=${t}&i=${JSON.stringify(e.i)}&co=${JSON.stringify(controls)}&nm=${title}&ep=${e.ep}`;
+    }
+}
+function updateControls(i, val) {
+    controls[i] = val;
+    buttons[i].getElementsByTagName("i")[0].className = `far fa${val ? "-check" : ""}-square`;
+    window.localStorage.setItem("controls", JSON.stringify(controls));
+    if (embed.contentWindow.updateControls) embed.contentWindow.updateControls(controls);
+}
+function prevEpisode() {
+    if (parseInt(episode.value) - 1 >= 0) {
+        episode.value = parseInt(episode.value) - 1;
+        updateEpisode();
+    } else if (parseInt(season.value) - 1 >= 0) {
+        season.value = parseInt(season.value) - 1;
+        episode.value = episodes.length - 1;
+        updateSeason();
+    }
+}
+function nextEpisode() {
+    if (parseInt(episode.value) + 1 < episodes.length) {
+        episode.value = parseInt(episode.value) + 1;
+        updateEpisode();
+    } else if (parseInt(season.value) + 1 < seasons.length) {
+        season.value = parseInt(season.value) + 1;
+        episode.value = 0;
+        updateSeason();
+    }
+}
+</script>
+
+</body>
+</html>
