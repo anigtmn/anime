@@ -88,7 +88,7 @@ fetch(`json/${urlParams.get("id")}.json`).then(e => e.json()).then(e => {
     ep = e.findIndex(e => e.ep == ep);
     for (let i = 0; i < e.length; i += n)
         seasons.push(e.slice(i, i + n));
-    season.innerHTML = '<option value="-1">👉 Бүлэг анги сонгох 👈</option>' + seasons.map((e, i) => `<option value="${i}">${e[0].ep}-с ${e.slice(-1)[0].ep}-р анги</option>`).join("");
+    season.innerHTML = '<option value="-1">👉 Бүлэг сонгох 👈</option>' + seasons.map((e, i) => `<option value="${i}">${e[0].ep}-${e.slice(-1)[0].ep}-р анги</option>`).join("");
     if (ep >= 0) {
         season.value = Math.floor(ep / n);
         ep %= n;
