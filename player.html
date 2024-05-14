@@ -73,23 +73,22 @@
 </div>
 <script>
 let controls = JSON.parse(window.localStorage.getItem("controls") || "[true,true,true,true,true]"),
-    urlParams = new URLSearchParams(window.location.search),
+    urlParams = new URLSearchParams(window.location.search), title = urlParams.get("nm"),
     season = document.getElementById("season"), episode = document.getElementById("episode"),
     player = document.getElementById("player"), embed = document.getElementById("embed"),
-    title, seasons = [], episodes, buttons = [];
+    seasons = [], episodes, buttons = [];
 for (let i = 0; i < 5; i++) {
     buttons[i] = document.getElementById("control" + i);
     updateControls(i, controls[i]);
     buttons[i].onclick = e => updateControls(i, !controls[i]);
 }
-fetch(`https://anigtmn.github.io/anime/json/${urlParams.get("id")}.json`).then(e => e.json()).then(e => {
-    e.eps = Object.entries(e.eps).map(e => { return { ep: e[0], f: e[1].f, t: e[1].t, i: e[1].i }; });
+fetch(`json/${urlParams.get("id")}.json`).then(e => e.json()).then(e => {
+    e = Object.entries(e).map(e => { return { ep: e[0], f: e[1].f, t: e[1].t, i: e[1].i }; });
     let ep = urlParams.get("ep"), n = 100;
-    ep = e.eps.findIndex(e => e.ep == ep);
-    for (let i = 0; i < e.eps.length; i += n)
-        seasons.push(e.eps.slice(i, i + n));
+    ep = e.findIndex(e => e.ep == ep);
+    for (let i = 0; i < e.length; i += n)
+        seasons.push(e.slice(i, i + n));
     season.innerHTML = '<option value="-1">👉 Choose Episodes 👈</option>' + seasons.map((e, i) => `<option value="${i}">Episodes ${e[0].ep}-${e.slice(-1)[0].ep}</option>`).join("");
-    title = e.nm;
     if (ep >= 0) {
         season.value = Math.floor(ep / n);
         ep %= n;
