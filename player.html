@@ -62,13 +62,13 @@
 <div id="player">
 	<iframe id="embed" allowfullscreen></iframe>
     <div id="control">
-        <button id="control0"><span><i></i> Auto Play</span></button>
-        <button id="control1"><span><i></i> Auto Next</span></button>
-        <button id="control2"><span><i></i> Skip Intro</span></button>
-        <button id="control3"><span><i></i> Auto Subtitle Translate</span></button>
-        <button id="control4"><span><i></i> Subtitle Sound Effect</span></button>
-        <button id="control5" onclick="prevEpisode()"><span><i class="fas fa-backward"></i> Previous Episode</span></button>
-        <button id="control6" onclick="nextEpisode()"><span>Next  Episode <i class="fas fa-forward"></i></span></button>
+        <button id="control0"><span><i></i> Шууд эхлэх</span></button>
+        <button id="control1"><span><i></i> Шууд дараах</span></button>
+        <button id="control2"><span><i></i> Дуу алгасах</span></button>
+        <button id="control3"><span><i></i> Хадмал орчуулах</span></button>
+        <button id="control4"><span><i></i> Хадмал тайлбар […]</span></button>
+        <button id="control5" onclick="prevEpisode()"><span><i class="fas fa-backward"></i> Өмнөх анги</span></button>
+        <button id="control6" onclick="nextEpisode()"><span>Дараах анги <i class="fas fa-forward"></i></span></button>
     </div>
 </div>
 <script>
@@ -88,7 +88,7 @@ fetch(`json/${urlParams.get("id")}.json`).then(e => e.json()).then(e => {
     ep = e.findIndex(e => e.ep == ep);
     for (let i = 0; i < e.length; i += n)
         seasons.push(e.slice(i, i + n));
-    season.innerHTML = '<option value="-1">👉 Choose Episodes 👈</option>' + seasons.map((e, i) => `<option value="${i}">Episodes ${e[0].ep}-${e.slice(-1)[0].ep}</option>`).join("");
+    season.innerHTML = '<option value="-1">👉 Бүлэг анги сонгох 👈</option>' + seasons.map((e, i) => `<option value="${i}">${e[0].ep}-с ${e.slice(-1)[0].ep}-р анги</option>`).join("");
     if (ep >= 0) {
         season.value = Math.floor(ep / n);
         ep %= n;
@@ -100,7 +100,7 @@ function updateSeason(ep = -1) {
     episode.style.display = season.value == -1 ? "none" : "block";
     episodes = seasons[season.value];
     if (season.value >= 0)
-        episode.innerHTML = '<option value="-1">👉 Choose Episode 👈</option>' + episodes.map((e, i) => `<option value="${i}">Episode ${(e.t.length == 0 ? "-" : "") + e.ep}</option>`).join("");
+        episode.innerHTML = '<option value="-1">👉 Анги сонгох 👈</option>' + episodes.map((e, i) => `<option value="${i}">${(e.t.length == 0 ? "-" : "") + e.ep}-р анги</option>`).join("");
     if (ep >= 0) episode.value = ep;
     updateEpisode();
 }

@@ -64,11 +64,11 @@
                 ep: urlParams.get("ep")
             }, data = {
                 file: json.f.includes("/") ? json.f : "https://fds.biananset.net/_v7/" + json.f + "/master.m3u8",
-                tracks: json.t ? [{ file: "https://cc.bunnyccdn.co/" + json.t, label: "Subtitle", default: true }] : [],
+                tracks: json.t ? [{ file: "https://cc.bunnyccdn.co/" + json.t, label: "Хадмал", default: true }] : [],
                 intro: { start: json.i[0], end: json.i[1] },
                 outro: { start: json.i[2], end: json.i[3] },
                 title: json.nm,
-                description: "Episode " + json.ep,
+                description: json.ep + "-р анги",
                 controls: json.co,
                 logo: "",
                 about: "AniGT"
