@@ -199,6 +199,7 @@
                         function translate(cc) {
                             let line = cc.innerHTML.replaceAll(/<[^>]*>/g, "").split("\n");
                             line = data.controls[4] ? line.map(e => e.trim()).join(" ").trim() : line.map(e => e.replaceAll(/\[.*?\]/g, "").replaceAll(/-[- ]/g, "").trim()).join(" ").trim();
+                            window.parent.window.test(line);
                             cc.style.display = "inline";
                             if (line == "") {
                                 cc.style.display = "none";

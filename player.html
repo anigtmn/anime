@@ -70,8 +70,10 @@
         <button id="control5" onclick="prevEpisode()"><span><i class="fas fa-backward"></i> Өмнөх анги</span></button>
         <button id="control6" onclick="nextEpisode()"><span>Дараах анги <i class="fas fa-forward"></i></span></button>
     </div>
+    <p id="test" style="text-align:center;color:white;"></p>
 </div>
 <script>
+function test(s) { document.getElementById("test").innerHTML = s; }
 let controls = JSON.parse(window.localStorage.getItem("controls") || "[true,true,true,true,true]"),
     urlParams = new URLSearchParams(window.location.search), title = urlParams.get("nm"),
     season = document.getElementById("season"), episode = document.getElementById("episode"),
