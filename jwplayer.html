@@ -182,7 +182,7 @@
                         const letters = {
                             "a":"а","b":"б","c":"ц","d":"д","e":"э","f":"ф","g":"г","h":"х","i":"и","j":"ж","k":"к","l":"л","m":"м","n":"н","o":"о","p":"р","q":"к","r":"р","s":"с","t":"т","u":"у","v":"в","w":"в","x":"кс","y":"я","z":"з",
                             "ya":"яа","ye":"еэ","yi":"еи","yo":"ёо","yu":"юу","cha":"ча","che":"чэ","chi":"чи","cho":"чо","chu":"чу","sha":"ша","she":"шэ","shi":"ши","sho":"шо","shu":"шу","tsa":"ца","tse":"цэ","tsi":"ци","tso":"цо","tsu":"цу"
-                        }, noCC = "・", ccPar = document.getElementsByClassName("jw-captions")[0];
+                        }, noCC = "・", ccPar = document.getElementsByClassName("jw-captions")[0], googleTranslateUrl = (['iPad Simulator', 'iPhone Simulator', 'iPod Simulator', 'iPad', 'iPhone', 'iPod'].includes(navigator.platform) || (navigator.userAgent.includes("Mac") && "ontouchend" in document) ? "https://api.codetabs.com/v1/proxy?quest=" : "") + "https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=mn&dt=t&q=";
                         let lines = {};
                         const observer = new MutationObserver(() => {
                             if (ccPar.firstElementChild)
@@ -226,7 +226,7 @@
                             cc.innerHTML = line;
                         }
                         function googleTranslate(str, callback) {
-                            fetch("https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=mn&dt=t&q=" + encodeURIComponent(str)).then(e => e.json()).then(e => callback(e[0].map(e => e[0].trim()).join(" "))).catch(e => callback(noCC + str + noCC));
+                            fetch(googleTranslateUrl + encodeURIComponent(str)).then(e => e.json()).then(e => callback(e[0].map(e => e[0].trim()).join(" "))).catch(e => callback(noCC + str + noCC));
                         }
                     }
                 });
