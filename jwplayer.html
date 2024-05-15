@@ -84,7 +84,7 @@
                 cues.push({ begin: data.outro.start, text: "Outro Start" });
                 cues.push({ begin: data.outro.end, text: "Outro End" });
             }
-            if (data.tracks.length > 0) {
+            if (iOS && data.tracks.length > 0) {
                 fetch(data.tracks[0].file).then(e => e.text()).then(text => {
                     let arr = text.split("\n");
                     arr.push("");
