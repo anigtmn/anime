@@ -57,7 +57,8 @@
         </div>
         <script src="jwplayer.js"></script>
         <script>
-            let urlParams = new URLSearchParams(window.location.search), json = {
+            let iOS = /^((?!chrome|android).)*safari/i.test(navigator.userAgent) || ['iPad Simulator','iPhone Simulator','iPod Simulator','iPad','iPhone','iPod'].includes(navigator.platform) || (navigator.userAgent.includes("Mac") && "ontouchend" in document),
+                urlParams = new URLSearchParams(window.location.search), json = {
                 f: urlParams.get("f"),
                 t: urlParams.get("t"),
                 i: JSON.parse(urlParams.get("i")),
@@ -135,7 +136,7 @@
                         description: data.description || "",
                         image: data.image || "",
                         file: data.file || "",
-                        //tracks: data.tracks,
+                        tracks: iOS ? [] : data.tracks,
                     }],
                     advertising: {
                         client: "vast",
@@ -211,12 +212,11 @@
                             }
                         }, 100);
                     }
-                    /*if (data.tracks.length > 0) {
-                        const parent = document.getElementsByClassName("jw-captions")[0], observer = new MutationObserver(() => updateTracks(parent.firstElementChild));
-                        observer.observe(parent, { subtree: true, childList: true });
-                    }*/
-                    if (senteces.length > 0) {
-                        let prv = "", parent = document.getElementsByClassName("jw-captions")[0];
+                    const parent = document.getElementsByClassName("jw-captions")[0];
+                    if (!iOS && data.tracks.length > 0) {
+                        new MutationObserver(() => updateTracks(parent.firstElementChild)).observe(parent, { subtree: true, childList: true });
+                    } else if (iOS && senteces.length > 0) {
+                        let prv = "";
                         parent.style.fontSize = "5vmin";
                         setInterval(() => {
                             let t = playerInstance.getPosition(), arr = [];
