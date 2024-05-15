@@ -26,12 +26,10 @@
             height: 8vw;
         }
         select {
-            display: none;
             border-radius: 1vw;
             font-size: 4vw;
         }
         #player {
-            display: none;
             flex-direction: column;
             border-radius: 1vw;
             overflow: hidden;
@@ -93,11 +91,11 @@
                 season.value = Math.floor(ep / n);
                 ep %= n;
             } else if (seasons.length == 1) season.value = 0;
-            season.style.display = seasons.length <= 1 ? "none" : "block";
+            season.style.visibility = seasons.length <= 1 ? "hidden" : "visible";
             updateSeason(ep);
         });
         function updateSeason(ep = -1) {
-            episode.style.display = season.value == -1 ? "none" : "block";
+            episode.style.visibility = season.value == -1 ? "hidden" : "visible";
             episodes = seasons[season.value];
             if (season.value >= 0)
                 episode.innerHTML = '<option value="-1">👉 Анги сонгох 👈</option>' + episodes.map((e, i) => `<option value="${i}">${(e.t.length == 0 ? "-" : "") + e.ep}-р анги</option>`).join("");
@@ -105,10 +103,10 @@
             updateEpisode();
         }
         function updateEpisode() {
-            player.style.display = "none";
+            player.style.visibility = "hidden";
             embed.src = "";
             if (season.value >= 0 && episode.value >= 0) {
-                player.style.display = "flex";
+                player.style.visibility = "visible";
                 let e = episodes[episode.value], t = "";
                 if (e.t.length > 0) {
                     let idx = e.t.findIndex(e => e[1].toLowerCase() == "english");
