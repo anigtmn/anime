@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css">
     <style>
         :root { --gap: .333vw; }
         * {
@@ -56,97 +57,94 @@
     </style>
 </head>
 <body>
-<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css">
-<select id="season" onchange="updateSeason()"></select>
-<select id="episode" onchange="updateEpisode()"></select>
-<div id="player">
-	<iframe id="embed" allowfullscreen></iframe>
-    <div id="control">
-        <button id="control0"><span><i></i> Шууд эхлэх</span></button>
-        <button id="control1"><span><i></i> Шууд дараах</span></button>
-        <button id="control2"><span><i></i> Дуу алгасах</span></button>
-        <button id="control3"><span><i></i> Хадмал орчуулах</span></button>
-        <button id="control4"><span><i></i> Хадмал тайлбар […]</span></button>
-        <button id="control5" onclick="prevEpisode()"><span><i class="fas fa-backward"></i> Өмнөх анги</span></button>
-        <button id="control6" onclick="nextEpisode()"><span>Дараах анги <i class="fas fa-forward"></i></span></button>
+    <select id="season" onchange="updateSeason()"></select>
+    <select id="episode" onchange="updateEpisode()"></select>
+    <div id="player">
+        <iframe id="embed" allowfullscreen></iframe>
+        <div id="control">
+            <button id="control0"><span><i></i> Шууд эхлэх</span></button>
+            <button id="control1"><span><i></i> Шууд дараах</span></button>
+            <button id="control2"><span><i></i> Дуу алгасах</span></button>
+            <button id="control3"><span><i></i> Хадмал орчуулах</span></button>
+            <button id="control4"><span><i></i> Хадмал тайлбар […]</span></button>
+            <button id="control5" onclick="prevEpisode()"><span><i class="fas fa-backward"></i> Өмнөх анги</span></button>
+            <button id="control6" onclick="nextEpisode()"><span>Дараах анги <i class="fas fa-forward"></i></span></button>
+        </div>
     </div>
-    <p id="test" style="text-align:center;color:white;"></p>
-</div>
-<script>
-function test(s) { document.getElementById("test").innerHTML = s; }
-let controls = JSON.parse(window.localStorage.getItem("controls") || "[true,true,true,true,true]"),
-    urlParams = new URLSearchParams(window.location.search), title = urlParams.get("nm"),
-    season = document.getElementById("season"), episode = document.getElementById("episode"),
-    player = document.getElementById("player"), embed = document.getElementById("embed"),
-    seasons = [], episodes, buttons = [];
-for (let i = 0; i < 5; i++) {
-    buttons[i] = document.getElementById("control" + i);
-    updateControls(i, controls[i]);
-    buttons[i].onclick = e => updateControls(i, !controls[i]);
-}
-fetch(`json/${urlParams.get("id")}.json`).then(e => e.json()).then(e => {
-    e = Object.entries(e).map(e => { return { ep: e[0], f: e[1].f, t: e[1].t, i: e[1].i }; });
-    let ep = urlParams.get("ep"), n = 100;
-    ep = e.findIndex(e => e.ep == ep);
-    for (let i = 0; i < e.length; i += n)
-        seasons.push(e.slice(i, i + n));
-    season.innerHTML = '<option value="-1">👉 Бүлэг сонгох 👈</option>' + seasons.map((e, i) => `<option value="${i}">${e[0].ep}-${e.slice(-1)[0].ep}-р анги</option>`).join("");
-    if (ep >= 0) {
-        season.value = Math.floor(ep / n);
-        ep %= n;
-    } else if (seasons.length == 1) season.value = 0;
-    season.style.display = seasons.length <= 1 ? "none" : "block";
-    updateSeason(ep);
-});
-function updateSeason(ep = -1) {
-    episode.style.display = season.value == -1 ? "none" : "block";
-    episodes = seasons[season.value];
-    if (season.value >= 0)
-        episode.innerHTML = '<option value="-1">👉 Анги сонгох 👈</option>' + episodes.map((e, i) => `<option value="${i}">${(e.t.length == 0 ? "-" : "") + e.ep}-р анги</option>`).join("");
-    if (ep >= 0) episode.value = ep;
-    updateEpisode();
-}
-function updateEpisode() {
-    player.style.display = "none";
-    embed.src = "";
-    if (season.value >= 0 && episode.value >= 0) {
-        player.style.display = "flex";
-        let e = episodes[episode.value], t = "";
-        if (e.t.length > 0) {
-            let idx = e.t.findIndex(e => e[1].toLowerCase() == "english");
-            if (idx < 0) idx = e.t.findIndex(e => e[1].toLowerCase().includes("english"));
-            if (idx < 0) idx = e.t.length - 1;
-            t = e.t[idx][0];
+    <script>
+        let controls = JSON.parse(window.localStorage.getItem("controls") || "[true,true,true,true,true]"),
+            urlParams = new URLSearchParams(window.location.search), title = urlParams.get("nm"),
+            season = document.getElementById("season"), episode = document.getElementById("episode"),
+            player = document.getElementById("player"), embed = document.getElementById("embed"),
+            seasons = [], episodes, buttons = [];
+        for (let i = 0; i < 5; i++) {
+            buttons[i] = document.getElementById("control" + i);
+            updateControls(i, controls[i]);
+            buttons[i].onclick = e => updateControls(i, !controls[i]);
         }
-        embed.src = `jwplayer.html?f=${e.f}&t=${t}&i=${JSON.stringify(e.i)}&co=${JSON.stringify(controls)}&nm=${title}&ep=${e.ep}`;
-    }
-}
-function updateControls(i, val) {
-    controls[i] = val;
-    buttons[i].getElementsByTagName("i")[0].className = `far fa${val ? "-check" : ""}-square`;
-    window.localStorage.setItem("controls", JSON.stringify(controls));
-    if (embed.contentWindow.updateControls) embed.contentWindow.updateControls(controls);
-}
-function prevEpisode() {
-    if (parseInt(episode.value) - 1 >= 0) {
-        episode.value = parseInt(episode.value) - 1;
-        updateEpisode();
-    } else if (parseInt(season.value) - 1 >= 0) {
-        season.value = parseInt(season.value) - 1;
-        episode.value = episodes.length - 1;
-        updateSeason();
-    }
-}
-function nextEpisode() {
-    if (parseInt(episode.value) + 1 < episodes.length) {
-        episode.value = parseInt(episode.value) + 1;
-        updateEpisode();
-    } else if (parseInt(season.value) + 1 < seasons.length) {
-        season.value = parseInt(season.value) + 1;
-        episode.value = 0;
-        updateSeason();
-    }
-}
-</script>
+        fetch(`json/${urlParams.get("id")}.json`).then(e => e.json()).then(e => {
+            e = Object.entries(e).map(e => { return { ep: e[0], f: e[1].f, t: e[1].t, i: e[1].i }; });
+            let ep = urlParams.get("ep"), n = 100;
+            ep = e.findIndex(e => e.ep == ep);
+            for (let i = 0; i < e.length; i += n)
+                seasons.push(e.slice(i, i + n));
+            season.innerHTML = '<option value="-1">👉 Бүлэг сонгох 👈</option>' + seasons.map((e, i) => `<option value="${i}">${e[0].ep}-${e.slice(-1)[0].ep}-р анги</option>`).join("");
+            if (ep >= 0) {
+                season.value = Math.floor(ep / n);
+                ep %= n;
+            } else if (seasons.length == 1) season.value = 0;
+            season.style.display = seasons.length <= 1 ? "none" : "block";
+            updateSeason(ep);
+        });
+        function updateSeason(ep = -1) {
+            episode.style.display = season.value == -1 ? "none" : "block";
+            episodes = seasons[season.value];
+            if (season.value >= 0)
+                episode.innerHTML = '<option value="-1">👉 Анги сонгох 👈</option>' + episodes.map((e, i) => `<option value="${i}">${(e.t.length == 0 ? "-" : "") + e.ep}-р анги</option>`).join("");
+            if (ep >= 0) episode.value = ep;
+            updateEpisode();
+        }
+        function updateEpisode() {
+            player.style.display = "none";
+            embed.src = "";
+            if (season.value >= 0 && episode.value >= 0) {
+                player.style.display = "flex";
+                let e = episodes[episode.value], t = "";
+                if (e.t.length > 0) {
+                    let idx = e.t.findIndex(e => e[1].toLowerCase() == "english");
+                    if (idx < 0) idx = e.t.findIndex(e => e[1].toLowerCase().includes("english"));
+                    if (idx < 0) idx = e.t.length - 1;
+                    t = e.t[idx][0];
+                }
+                embed.src = `jwplayer.html?f=${e.f}&t=${t}&i=${JSON.stringify(e.i)}&co=${JSON.stringify(controls)}&nm=${title}&ep=${e.ep}`;
+            }
+        }
+        function updateControls(i, val) {
+            controls[i] = val;
+            buttons[i].getElementsByTagName("i")[0].className = `far fa${val ? "-check" : ""}-square`;
+            window.localStorage.setItem("controls", JSON.stringify(controls));
+            if (embed.contentWindow.updateControls) embed.contentWindow.updateControls(controls);
+        }
+        function prevEpisode() {
+            if (parseInt(episode.value) - 1 >= 0) {
+                episode.value = parseInt(episode.value) - 1;
+                updateEpisode();
+            } else if (parseInt(season.value) - 1 >= 0) {
+                season.value = parseInt(season.value) - 1;
+                episode.value = episodes.length - 1;
+                updateSeason();
+            }
+        }
+        function nextEpisode() {
+            if (parseInt(episode.value) + 1 < episodes.length) {
+                episode.value = parseInt(episode.value) + 1;
+                updateEpisode();
+            } else if (parseInt(season.value) + 1 < seasons.length) {
+                season.value = parseInt(season.value) + 1;
+                episode.value = 0;
+                updateSeason();
+            }
+        }
+    </script>
 </body>
 </html>
