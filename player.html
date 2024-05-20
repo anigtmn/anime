@@ -7,15 +7,18 @@
     <style>
         :root { --gap: .333vw; }
         * {
+            font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
         }
         body {
+            background-color: #1a1a1a;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 2vw;
             overflow: hidden;
+            text-align: center;
         }
         select, button, #player, #embed, #control { width: 100vw; }
         select, button {
@@ -26,10 +29,12 @@
             height: 8vw;
         }
         select {
+            display: none;
             border-radius: 1vw;
             font-size: 4vw;
         }
         #player {
+            display: none;
             flex-direction: column;
             border-radius: 1vw;
             overflow: hidden;
@@ -52,9 +57,21 @@
         #player, #control { gap: var(--gap); }
         #control0, #control1, #control2 { width: calc((100vw - 2 * var(--gap)) / 3); }
         #control3, #control4, #control5, #control6 { width: calc((100vw - var(--gap)) / 2); }
+        #instruction2 { font-size: 5vw; font-weight: bold; color: white; cursor:pointer }
+        #instruction { font-size: 4vw; display: none; flex-direction: column; gap: 2vw; }
+        #instruction b { color: white; }
+        #instruction a { text-decoration: none; }
+        #instruction * { color: #ccc; line-height: 1.4; }
     </style>
 </head>
 <body>
+    <div id="instruction2" onclick="showInstruction()"></div>
+    <div id="instruction">
+        <b>FB ХАЯГУУД</b>
+        <span><a href="https://www.facebook.com/anigtmn" target="_blank">Энд дарж <u>FB PAGE</u> ороорой</a><br><a href="https://www.facebook.com/groups/anigt/" target="_blank">Энд дарж <u>FB GROUP</u> ороорой</a></span>
+        <b>КИНОНЫ АЛДАА ЗАСАХ ЗААВАР</b>
+        <span>ERROR CODE гэсэн алдаа гарвал CLEAR BROWSING DATA-гаа ALL TIME-р HISTORY, COOKIE, CACHE-ээ цэвэрлээд үзээрэй. INCOGNITO WINDOW-р ороорой энэ нь HISTORY, COOKIE, CACHE хадгалдаггүй учраас байнга энэ горимоор үзэхийг зөвлөж байна. BROWSER-оо UPDATE хийгээд эсвэл солиод үзээрэй. Ингээд болохгүй бол VPN-р ороод улсуудаа солиод туршаад үзээрэй. Дээрх бүх аргаар үзсэн ч болохгүй бол <a href="https://www.facebook.com/groups/anigt/" target="_blank">FB GROUP</a>-д мэдэгдээрэй.</span>
+    </div>
     <select id="season" onchange="updateSeason()"></select>
     <select id="episode" onchange="updateEpisode()"></select>
     <div id="player">
@@ -70,6 +87,13 @@
         </div>
     </div>
     <script>
+		let instruction = true;
+		showInstruction();
+		function showInstruction() {
+			instruction = !instruction;
+			document.getElementById("instruction").style.display = instruction ? "flex" : "none";
+			document.getElementById("instruction2").innerHTML = `( Энд дарж ЗААВАР ${instruction ? "хаагаарай" : "хараарай"} )`;
+		}
         let controls = JSON.parse(window.localStorage.getItem("controls") || "[true,true,true,true,true]"),
             urlParams = new URLSearchParams(window.location.search), title = urlParams.get("nm"),
             season = document.getElementById("season"), episode = document.getElementById("episode"),
@@ -91,11 +115,11 @@
                 season.value = Math.floor(ep / n);
                 ep %= n;
             } else if (seasons.length == 1) season.value = 0;
-            season.style.visibility = seasons.length <= 1 ? "hidden" : "visible";
+            season.style.display = seasons.length <= 1 ? "none" : "flex";
             updateSeason(ep);
         });
         function updateSeason(ep = -1) {
-            episode.style.visibility = season.value == -1 ? "hidden" : "visible";
+            episode.style.display = season.value == -1 ? "none" : "flex";
             episodes = seasons[season.value];
             if (season.value >= 0)
                 episode.innerHTML = '<option value="-1">👉 Анги сонгох 👈</option>' + episodes.map((e, i) => `<option value="${i}">${(e.t.length == 0 ? "-" : "") + e.ep}-р анги</option>`).join("");
@@ -103,10 +127,10 @@
             updateEpisode();
         }
         function updateEpisode() {
-            player.style.visibility = "hidden";
+            player.style.display = "none";
             embed.src = "";
             if (season.value >= 0 && episode.value >= 0) {
-                player.style.visibility = "visible";
+                player.style.display = "flex";
                 let e = episodes[episode.value], t = "";
                 if (e.t.length > 0) {
                     let idx = e.t.findIndex(e => e[1].toLowerCase() == "english");
