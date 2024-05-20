@@ -122,7 +122,7 @@
             episode.style.display = season.value == -1 ? "none" : "flex";
             episodes = seasons[season.value];
             if (season.value >= 0)
-                episode.innerHTML = '<option value="-1">👉 Анги сонгох 👈</option>' + episodes.map((e, i) => `<option value="${i}">${(e.t.length == 0 ? "-" : "") + e.ep}-р анги</option>`).join("");
+                episode.innerHTML = '<option value="-1">👉 Анги сонгох 👈</option>' + episodes.map((e, i) => `<option value="${i}">${e.ep}-р анги${(e.t.length == 0 ? " (Хадмалгүй)" : "")}</option>`).join("");
             if (ep >= 0) episode.value = ep;
             updateEpisode();
         }
